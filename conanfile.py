@@ -53,7 +53,7 @@ class IpoptConan(ConanFile):
         self.options["openblas"].shared = self.options.shared
         self.options["openblas"].use_thread = True
         self.options["openblas"].build_lapack = True
-        self.options["openblas"].dynamic_arch = True
+        # self.options["openblas"].dynamic_arch = True
 
     def source(self):
 
@@ -109,7 +109,7 @@ class IpoptConan(ConanFile):
         os.unlink(os.path.join(self.package_folder, "lib", "libsipopt.la"))
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "LAPACK"
+        self.cpp_info.names["cmake_find_package"] = "IPOPT"
         self.cpp_info.libs = ["ipopt", "sipopt"]
         self.cpp_info.includedirs = [os.path.join("include", "coin-or")]
 

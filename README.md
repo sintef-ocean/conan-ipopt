@@ -41,10 +41,10 @@ The package is usually consumed using the `conan install` command or a *conanfil
    project(TheProject CXX)
 
    include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
-   find_package(ipopt MODULE REQUIRED)
+   find_package(IPOPT MODULE REQUIRED)
 
    add_executable(the_executor code.cpp)
-   target_link_libraries(the_executor ipopt::ipopt)
+   target_link_libraries(the_executor IPOPT::IPOPT)
    ```
    Then, do
    ```bash
