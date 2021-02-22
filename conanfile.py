@@ -51,8 +51,8 @@ class IpoptConan(ConanFile):
                 "This recipe is does not support Visual Studio")
 
         self.options["openblas"].shared = self.options.shared
-        self.options["openblas"].use_thread = True
         self.options["openblas"].build_lapack = True
+        # self.options["openblas"].use_thread = True
         # self.options["openblas"].dynamic_arch = True
 
     def source(self):
