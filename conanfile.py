@@ -6,7 +6,7 @@ import os
 
 class IpoptConan(ConanFile):
     name = "ipopt"
-    version = "3.13.3"
+    version = "3.13.4"
     license = ("EPL-2.0",)
     author = "SINTEF Ocean"
     url = "https://github.com/sintef-ocean/conan-ipopt"
@@ -29,16 +29,18 @@ class IpoptConan(ConanFile):
     generators = "pkg_config"
 
     build_requires = ("coinbrew/2021.01@sintef/stable")
-    requires = (
-        "coinmumps/4.10.0@sintef/stable",
-        "openblas/[>=0.3.12]"
-    )
+
     _name = "Ipopt"
 
     def requirements(self):
-
         if self.options.with_hsl:
             self.requires("coinhsl/[>=2014.01.17]@sintef/stable")
+
+        if self.settings.compiler == "Visual Studio":
+            self.requires("openblas/[>=0.3.13]@sintef/testing")
+        else:
+            self.requires("coinmumps/4.10.0@sintef/stable")
+            self.requires("openblas/[>=0.3.13]")
 
     def config_options(self):
         if self.settings.os == "Windows":
