@@ -1,4 +1,4 @@
-from conans import AutoToolsBuildEnvironment, ConanFile, tools
+from conans import AutoToolsBuildEnvironment, ConanFile, tools, RunEnvironment
 from conans.tools import PkgConfig
 from conans.errors import ConanInvalidConfiguration
 import os
@@ -68,41 +68,43 @@ class IpoptConan(ConanFile):
         env_build = AutoToolsBuildEnvironment(self)
         environ = env_build.vars.copy()
         environ["PKG_CONFIG_PATH"] = self.build_folder
+        env_build_run = RunEnvironment(self)  # Needed for runtime tests
 
-        with tools.environment_append(environ):
+        with tools.environment_append(env_build_run.vars):
+            with tools.environment_append(environ):
 
-            cmd_str = str()
-            cmd_str += "coinbrew build {}@{} ".format(self._name, self.version)
-            cmd_str += "--no-prompt "
-            cmd_str += "--skip-dependencies "
-            cmd_str += "--verbosity=4 "
-            cmd_str += "--parallel-jobs {} ".format(tools.cpu_count())
+                cmd_str = str()
+                cmd_str += "coinbrew build {}@{} ".format(self._name, self.version)
+                cmd_str += "--no-prompt "
+                cmd_str += "--skip-dependencies "
+                cmd_str += "--verbosity=4 "
+                cmd_str += "--parallel-jobs {} ".format(tools.cpu_count())
 
-            if not self.settings.os == "Windows" and not self.options.shared:
-                cmd_str += "--static "
-                # --enable-static
-                # --enable-shared
+                if not self.settings.os == "Windows" and not self.options.shared:
+                    cmd_str += "--static "
+                    # --enable-static
+                    # --enable-shared
 
-            if self.settings.build_type == "Debug":
-                cmd_str += "--enable-debug "
+                if self.settings.build_type == "Debug":
+                    cmd_str += "--enable-debug "
 
-            if self.settings.compiler == "Visual Studio":
-                cmd_str += "--enable-msvc={} ".format(self.settings.compiler.runtime)
+                if self.settings.compiler == "Visual Studio":
+                    cmd_str += "--enable-msvc={} ".format(self.settings.compiler.runtime)
 
-            if self.options.fPIC:
-                cmd_str += "--with-pic "
+                if self.options.fPIC:
+                    cmd_str += "--with-pic "
 
-            pkg_openblas = PkgConfig("openblas")
-            pkg_mumps = PkgConfig("coinmumps")
-            cmd_str += "--with-lapack=\"{}\" ".format(" ".join(pkg_openblas.libs))
-            cmd_str += "--with-mumps=\"{}\" ".format(" ".join(pkg_mumps.libs))
-            cmd_str += "--with-mumps-cflags=\"{}\" ".format(" ".join(pkg_mumps.cflags))
-            if self.options.with_hsl:
-                pkg_coinhsl = PkgConfig("coinhsl")
-                cmd_str += "--with-hsl=\"{}\" ".format(" ".join(pkg_coinhsl.libs))
-                cmd_str += "--with-hsl-cflags=\"{}\" ".format(" ".join(pkg_coinhsl.cflags))
+                pkg_openblas = PkgConfig("openblas")
+                pkg_mumps = PkgConfig("coinmumps")
+                cmd_str += "--with-lapack=\"{}\" ".format(" ".join(pkg_openblas.libs))
+                cmd_str += "--with-mumps=\"{}\" ".format(" ".join(pkg_mumps.libs))
+                cmd_str += "--with-mumps-cflags=\"{}\" ".format(" ".join(pkg_mumps.cflags))
+                if self.options.with_hsl:
+                    pkg_coinhsl = PkgConfig("coinhsl")
+                    cmd_str += "--with-hsl=\"{}\" ".format(" ".join(pkg_coinhsl.libs))
+                    cmd_str += "--with-hsl-cflags=\"{}\" ".format(" ".join(pkg_coinhsl.cflags))
 
-            self.run(cmd_str)
+                self.run(cmd_str)
 
     def package(self):
         self.copy("*", src="dist")
