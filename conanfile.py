@@ -6,7 +6,7 @@ import os
 
 class IpoptConan(ConanFile):
     name = "ipopt"
-    version = "3.13.4"
+    # version = "3.13.4"
     license = ("EPL-2.0",)
     author = "SINTEF Ocean"
     url = "https://github.com/sintef-ocean/conan-ipopt"
