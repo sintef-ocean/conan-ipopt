@@ -19,9 +19,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler_version: [8, 9]
+        compiler_version: [8, 9, 10, 11]
         build_type: [Debug, Release]
         os: [ubuntu-20.04]
+        version: [3.13.4, 3.14.4]
     container:
       image: conanio/gcc${{ matrix.compiler_version }}
       options: -u 0
@@ -30,8 +31,8 @@ jobs:
       - name: Install prerequisites
         run: |
           sudo apt-get update
-          sudo pip3 install --upgrade setuptools pip
-          sudo pip3 install conan requests
+          sudo pip3 install --upgrade setuptools pip requests
+          sudo pip3 install --upgrade conan
           sudo apt-get install -y gfortran-${{ matrix.compiler_version }}
           sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-${{ matrix.compiler_version }} 20
       - name: Configure Conan
@@ -42,7 +43,7 @@ jobs:
           conan create -s build_type=${{ matrix.build_type }} \
             -s compiler.version=${{ matrix.compiler_version }} \
             -s compiler.libcxx=libstdc++11 \
-            -b missing -b outdated . sintef/stable
+            -b missing -b outdated . ${{ matrix.version }}@sintef/stable
       - name: Conan upload
         run: |
           conan upload --all -c -r sintef ${SINTEF_REFERENCE} --retry 10 --retry-wait 20 --force
